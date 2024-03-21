@@ -7,7 +7,7 @@ protocol MoviesViewControllerProtocol: AnyObject {
 
 class MoviesViewController: UIViewController {
     struct ViewContent {
-        var items: [MovieCell.MovieCellContent]
+        var movies: [MovieCell.MovieCellContent]
         var sectionType: SectionType
     }
     
@@ -41,7 +41,7 @@ class MoviesViewController: UIViewController {
 // MARK: - Movies View Controller Protocol
 extension MoviesViewController: MoviesViewControllerProtocol {
     func showData(content: ViewContent) {
-        moviesView.setContent(content: content)
+        moviesView.setContent(content: content, for: content.sectionType)
     }
     
     func showViewController(viewController: UIViewController) {

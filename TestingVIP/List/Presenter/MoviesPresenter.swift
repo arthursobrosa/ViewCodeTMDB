@@ -31,6 +31,6 @@ extension MoviesPresenter: MoviesPresenterProtocol {
             items.append(movieCellContent)
         }
         
-        view?.showData(content: .init(items: items, sectionType: sectionType))
+        view?.showData(content: .init(movies: items, sectionType: sectionType))
     }
 }

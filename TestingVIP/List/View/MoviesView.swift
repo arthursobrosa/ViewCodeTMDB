@@ -6,7 +6,8 @@ protocol MoviesViewProtocol {
 
 class MoviesView: UIView {
     var delegate: MoviesViewProtocol?
-    private var content: MoviesViewController.ViewContent?
+    private var popularContent: MoviesViewController.ViewContent?
+    private var nowPlayingContent: MoviesViewController.ViewContent?
     
     private lazy var tableView: UITableView = {
         let table = UITableView()
@@ -30,8 +31,13 @@ class MoviesView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func setContent(content: MoviesViewController.ViewContent) {
-        self.content = content
+    func setContent(content: MoviesViewController.ViewContent, for sectionType: SectionType) {
+        switch sectionType {
+            case .popular:
+                popularContent = content
+            case .nowPlaying:
+                nowPlayingContent = content
+        }
         
         reloadTable()
     }
@@ -62,17 +68,26 @@ extension MoviesView {
 // MARK: - Table View Data Source
 extension MoviesView: UITableViewDataSource {
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return content?.sectionType.title ?? String()
+        let content = section == 0 ? popularContent : nowPlayingContent
+        guard let content = content else { return String() }
+        
+        let sectionTitle = content.sectionType.title
+        
+        return sectionTitle
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return content?.items.count ?? 0
+        let count = section == 0 ? popularContent?.movies.count : nowPlayingContent?.movies.count
+        return count ?? 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "movieCell") as? MovieCell else { fatalError() }
-
-        cell.content = content?.items[indexPath.row]
+        
+        let movies = indexPath.section == 0 ? popularContent?.movies : nowPlayingContent?.movies
+        if let movies = movies {
+            cell.content = movies[indexPath.row]
+        }
 
         return cell
     }
@@ -82,5 +97,9 @@ extension MoviesView: UITableViewDataSource {
 extension MoviesView: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         delegate?.didSelect(indexPath: indexPath)
+    }
+    
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return SectionType.allCases.count
     }
 }

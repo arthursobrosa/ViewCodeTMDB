@@ -8,7 +8,8 @@ protocol MoviesInteractorProtocol {
 final class MoviesInteractor {
     private let presenter: MoviesPresenterProtocol?
     
-    private var movies: [MovieModel] = []
+    private var popularMovies: [MovieModel] = []
+    private var nowPlayingMovies: [MovieModel] = []
     
     init(presenter: MoviesPresenterProtocol?) {
         self.presenter = presenter
@@ -18,22 +19,24 @@ final class MoviesInteractor {
 // MARK: - Movies Interactor Protocol
 extension MoviesInteractor: MoviesInteractorProtocol {
     func loadMovies() {
-        let allSectionTypes = SectionType.allCases
-        
-        for sectionType in allSectionTypes {
-            Task {
-                do {
-                    movies = try await MovieService.shared.fetchMovies(for: sectionType)
-                    presenter?.showData(movies: movies, of: sectionType)
-                } catch {
-                    print(error)
-                }
+        Task {
+            do {
+                popularMovies = try await MovieService.shared.fetchMovies(for: .popular)
+                presenter?.showData(movies: popularMovies, of: .popular)
+                
+                nowPlayingMovies = try await MovieService.shared.fetchMovies(for: .nowPlaying)
+                presenter?.showData(movies: nowPlayingMovies, of: .nowPlaying)
+            } catch {
+                print(error)
             }
         }
     }
     
     func didSelect(indexPath: IndexPath) {
-        let movie = movies[indexPath.row]
+        let section = indexPath.section
+        let row = indexPath.row
+        let movie = section == 0 ? popularMovies[row] : nowPlayingMovies[row]
+        
         presenter?.showDetails(movie: movie)
     }
 }
