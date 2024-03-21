@@ -8,8 +8,6 @@ class MovieService {
     
     private let baseImageURL = "https://image.tmdb.org/t/p/w500/"
     
-    private let baseGenresURL = "https://api.themoviedb.org/3/movie/"
-    
     
     public func fetchMovies(for sectionType: SectionType) async throws -> [MovieModel] {
         var movies: [MovieModel] = []
@@ -56,7 +54,7 @@ class MovieService {
     }
     
     private func fetchGenres(_ movieID: Int) async throws -> [String] {
-        let urlString = baseGenresURL + String(movieID) + endpoint
+        let urlString = baseURL + String(movieID) + endpoint
         
         guard let url = URL(string: urlString) else { throw MovieError.invalidURL }
         
